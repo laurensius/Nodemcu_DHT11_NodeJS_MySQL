@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Proyek IoT Monitoring Suhu dan Kelembaban DHT11" />
+    <meta name="author" content="Laurensius Dede Suhardiman" />
+    <link rel="icon" href="../../favicon.ico" />
+    <link
+      rel="canonical"
+      href="https://getbootstrap.com/docs/3.3/examples/starter-template/"
+    />
+    <title>Internet of Things Project : NOdeJS - NodeMCU - DHT11 </title>
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/starter.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button
+            type="button"
+            class="navbar-toggle collapsed"
+            data-toggle="collapse"
+            data-target="#navbar"
+            aria-expanded="false"
+            aria-controls="navbar"
+          >
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Monitoring Suhu dan Kelembaban</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Monitoring</a></li>
+            <li class="active"><a href="#">Grafik</a></li>
+            <!-- <li><a href="/tabel">Tabel</a></li> -->
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="starter-template">
+        <h1>Grafik Suhu</h1>
+        <p class="lead">
+          Grafik perubahan suhu  terkini
+        </p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="rows">
+        <div class="col-lg-12">
+          <canvas id="myChartSuhu" width="400" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+        <div class="starter-template">
+          <h1>Grafik Kelembaban</h1>
+          <p class="lead">
+            Grafik perubahan kelembaban terkini
+          </p>
+        </div>
+      </div>
+      <div class="container">
+          <div class="rows">
+            <div class="col-lg-12">
+              <canvas id="myChartKelembaban" width="400" height="150"></canvas>
+            </div>
+          </div>
+      </div>
+    </div>
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/node_modules/chart.js/dist/Chart.js"></script>
+    <script>
+      function loadData() {
+        $.ajax({
+          url: "/api/grafik",
+          type: "GET",
+          dataType: "json",
+          success: function(response) {
+            console.log(response);
+            if (
+              response.severity === "success" &&
+              response.content.sensor.length > 0
+            ) {
+              var labels = new Array(response.content.sensor.length);
+              var data_suhu_1 = new Array(response.content.sensor.length);
+              var data_suhu_2 = new Array(response.content.sensor.length);
+              var data_kelembaban_1 = new Array(response.content.sensor.length);
+              var data_kelembaban_2 = new Array(response.content.sensor.length);
+              var y = 0;
+              for (var x = response.content.sensor.length - 1; x >= 0; x--) {
+                labels[y] = response.content.sensor[x].datetime;
+                data_suhu_1[y] = response.content.sensor[x].suhu_1;
+                data_suhu_2[y] = response.content.sensor[x].suhu_2;
+                data_kelembaban_1[y] = response.content.sensor[x].kelembaban_1;
+                data_kelembaban_2[y] = response.content.sensor[x].kelembaban_2;
+                y++;
+              }
+
+              var ctx_suhu = document.getElementById("myChartSuhu");
+              var ctx_kelembaban = document.getElementById("myChartKelembaban");
+              var myChart = new Chart(ctx_suhu, {
+                type: "line",
+                data: {
+                  labels: labels,
+                  datasets: [
+                    {
+                      label: "Suhu Sensor 1",
+                      data: data_suhu_1,
+                      backgroundColor: ["rgba(66, 245, 120,0.2)"],
+                      borderColor: ["rgba(66, 245, 120,1)"],
+                      borderWidth: 1.5
+                    },
+                    {
+                      label: "Suhu Sensor 2",
+                      data: data_suhu_2,
+                      backgroundColor: ["rgba(245, 20, 230,0.2)"],
+                      borderColor: ["rgba(245, 20, 230,1)"],
+                      borderWidth: 1.5
+                    }
+                  ]
+                },
+                options: {
+                  scales: {
+                    yAxes: [
+                      {
+                        ticks: {
+                          beginAtZero: true
+                        }
+                      }
+                    ]
+                  }
+                }
+              });
+              var myChart = new Chart(ctx_kelembaban, {
+                type: "line",
+                data: {
+                  labels: labels,
+                  datasets: [
+                    {
+                      label: "Kelembaban Sensor 1",
+                      data: data_kelembaban_1,
+                      backgroundColor: ["rgba(66, 236, 245,0.2)"],
+                      borderColor: ["rgba(66, 236, 245,1)"],
+                      borderWidth: 1.5
+                    },
+                    {
+                      label: "Kelembaban Sensor 2",
+                      data: data_kelembaban_2,
+                      backgroundColor: ["rgba(255, 227, 87,0.2)"],
+                      borderColor: ["rgba(255, 227, 87,1)"],
+                      borderWidth: 1.5
+                    }
+                  ]
+                },
+                options: {
+                  scales: {
+                    yAxes: [
+                      {
+                        ticks: {
+                          beginAtZero: true
+                        }
+                      }
+                    ]
+                  }
+                }
+              });
+            }
+          },
+          error: function(response) {
+            alert(error);
+          },
+          cache: false,
+          contentType: false,
+          processData: false
+        });
+      }
+
+      loadData();
+
+      setInterval(function() {
+        loadData();
+      }, 5000);
+    </script>
+  </body>
+</html>

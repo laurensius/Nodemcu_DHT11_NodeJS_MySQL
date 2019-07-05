@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Proyek IoT Monitoring Suhu dan Kelembaban DHT11"
+    />
+    <meta name="author" content="Laurensius Dede Suhardiman" />
+    <link rel="icon" href="../../favicon.ico" />
+    <link
+      rel="canonical"
+      href="https://getbootstrap.com/docs/3.3/examples/starter-template/"
+    />
+    <title>Internet of Things Project : NOdeJS - NodeMCU - DHT11</title>
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/starter.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button
+            type="button"
+            class="navbar-toggle collapsed"
+            data-toggle="collapse"
+            data-target="#navbar"
+            aria-expanded="false"
+            aria-controls="navbar"
+          >
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Monitoring Suhu dan Kelembaban</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Monitoring</a></li>
+            <li><a href="/grafik">Grafik</a></li>
+            <!-- <li><a href="/tabel">Tabel</a></li> -->
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="starter-template">
+        <h1>Monitoring</h1>
+        <p class="lead">
+          Monitoring kondisi suhu dan kelembaban <br />Update terbaru pada
+          <span id="datetime"></span>
+        </p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="rows">
+        <div class="col-lg-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <div class="panel-title">
+                Suhu Sensor 1 : <strong id="suhu_1"></strong> <sup>o</sup>
+              </div>
+            </div>
+            <div class="panel-body">
+              <canvas id="gauge_suhu_1" style="width:100%;"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <div class="panel-title">
+                Kelembaban Sensor 1 : <strong id="kelembaban_1"></strong> %
+              </div>
+            </div>
+            <div class="panel-body">
+              <canvas id="gauge_kelembaban_1" style="width:100%;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rows">
+        <div class="col-lg-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <div class="panel-title">
+                Suhu Sensor 2 : <strong id="suhu_2"></strong> <sup>o</sup>
+              </div>
+            </div>
+            <div class="panel-body">
+              <canvas id="gauge_suhu_2" style="width:100%;"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <div class="panel-title">
+                Kelembaban Sensor 2 : <strong id="kelembaban_2"></strong> %
+              </div>
+            </div>
+            <div class="panel-body">
+              <canvas id="gauge_kelembaban_2" style="width:100%;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/assets/js/gauge.js"></script>
+    <script>
+      function loadData() {
+        // sensor 1
+        var opts_suhu_1 = {
+          width: 1000,
+          angle: 0,
+          lineWidth: 0.44,
+          radiusScale: 1,
+          pointer: {
+            length: 0.6,
+            strokeWidth: 0.035,
+            color: "#000000"
+          },
+          limitMax: true,
+          limitMin: false,
+          colorStart: "#6FADCF",
+          colorStop: "#8FC0DA",
+          strokeColor: "#E0E0E0",
+          generateGradient: true,
+          highDpiSupport: true,
+          staticZones: [
+            { strokeStyle: "#FFDD00", min: 0, max: 35 }, // Yellow
+            { strokeStyle: "#30B32D", min: 36, max: 39 }, // Green
+            { strokeStyle: "#F03E3E", min: 40, max: 100 } // Red
+          ],
+          staticLabels: {
+            font: "10px sans-serif",
+            labels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            color: "#000000",
+            fractionDigits: 0
+          }
+        };
+
+        var target_suhu_1 = document.getElementById("gauge_suhu_1");
+        var gauge_suhu_1 = new Gauge(target_suhu_1).setOptions(opts_suhu_1);
+        gauge_suhu_1.maxValue = 100;
+        gauge_suhu_1.setMinValue(0);
+        gauge_suhu_1.animationSpeed = 32;
+
+        var opts_kelembaban_1 = {
+          angle: 0,
+          lineWidth: 0.44,
+          radiusScale: 1,
+          pointer: {
+            length: 0.6,
+            strokeWidth: 0.035,
+            color: "#000000"
+          },
+          limitMax: true,
+          limitMin: false,
+          colorStart: "#6FADCF",
+          colorStop: "#8FC0DA",
+          strokeColor: "#E0E0E0",
+          generateGradient: true,
+          highDpiSupport: true,
+          staticZones: [
+            { strokeStyle: "#FFDD00", min: 0, max: 49 }, // Yellow
+            { strokeStyle: "#30B32D", min: 50, max: 60 }, // Green
+            { strokeStyle: "#F03E3E", min: 61, max: 100 } // Red
+          ],
+          staticLabels: {
+            font: "10px sans-serif",
+            labels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            color: "#000000",
+            fractionDigits: 0
+          }
+        };
+        var target_kelembaban_1 = document.getElementById("gauge_kelembaban_1");
+        var gauge_kelembaban_1 = new Gauge(target_kelembaban_1).setOptions(
+          opts_kelembaban_1
+        );
+        gauge_kelembaban_1.maxValue = 100;
+        gauge_kelembaban_1.setMinValue(0);
+        gauge_kelembaban_1.animationSpeed = 32;
+
+        // Sensor 2
+        var opts_suhu_2 = {
+          width: 1000,
+          angle: 0,
+          lineWidth: 0.44,
+          radiusScale: 1,
+          pointer: {
+            length: 0.6,
+            strokeWidth: 0.035,
+            color: "#000000"
+          },
+          limitMax: true,
+          limitMin: false,
+          colorStart: "#6FADCF",
+          colorStop: "#8FC0DA",
+          strokeColor: "#E0E0E0",
+          generateGradient: true,
+          highDpiSupport: true,
+          staticZones: [
+            { strokeStyle: "#FFDD00", min: 0, max: 35 }, // Yellow
+            { strokeStyle: "#30B32D", min: 36, max: 39 }, // Green
+            { strokeStyle: "#F03E3E", min: 40, max: 100 } // Red
+          ],
+          staticLabels: {
+            font: "10px sans-serif",
+            labels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            color: "#000000",
+            fractionDigits: 0
+          }
+        };
+
+        var target_suhu_2 = document.getElementById("gauge_suhu_2");
+        var gauge_suhu_2 = new Gauge(target_suhu_2).setOptions(opts_suhu_2);
+        gauge_suhu_2.maxValue = 100;
+        gauge_suhu_2.setMinValue(0);
+        gauge_suhu_2.animationSpeed = 32;
+
+        var opts_kelembaban_2 = {
+          angle: 0,
+          lineWidth: 0.44,
+          radiusScale: 1,
+          pointer: {
+            length: 0.6,
+            strokeWidth: 0.035,
+            color: "#000000"
+          },
+          limitMax: true,
+          limitMin: false,
+          colorStart: "#6FADCF",
+          colorStop: "#8FC0DA",
+          strokeColor: "#E0E0E0",
+          generateGradient: true,
+          highDpiSupport: true,
+          staticZones: [
+            { strokeStyle: "#FFDD00", min: 0, max: 49 }, // Yellow
+            { strokeStyle: "#30B32D", min: 50, max: 60 }, // Green
+            { strokeStyle: "#F03E3E", min: 61, max: 100 } // Red
+          ],
+          staticLabels: {
+            font: "10px sans-serif",
+            labels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            color: "#000000",
+            fractionDigits: 0
+          }
+        };
+        var target_kelembaban_2 = document.getElementById("gauge_kelembaban_2");
+        var gauge_kelembaban_2 = new Gauge(target_kelembaban_2).setOptions(
+          opts_kelembaban_2
+        );
+        gauge_kelembaban_2.maxValue = 100;
+        gauge_kelembaban_2.setMinValue(0);
+        gauge_kelembaban_2.animationSpeed = 32;
+
+        // Ajax
+        $.ajax({
+          url: "/api/recent",
+          type: "GET",
+          dataType: "json",
+          success: function(response) {
+            console.log(response);
+            if (
+              response.severity === "success" &&
+              response.content.sensor.length > 0
+            ) {
+              var suhu_1 = response.content.sensor[0].suhu_1;
+              $("#suhu_1").html(suhu_1);
+              gauge_suhu_1.set(suhu_1);
+
+              var kelembaban_1 = response.content.sensor[0].kelembaban_1;
+              $("#kelembaban_1").html(kelembaban_1);
+              gauge_kelembaban_1.set(kelembaban_1);
+
+              var suhu_2 = response.content.sensor[0].suhu_2;
+              $("#suhu_2").html(suhu_2);
+              gauge_suhu_2.set(suhu_2);
+
+              var kelembaban_2 = response.content.sensor[0].kelembaban_2;
+              $("#kelembaban_2").html(kelembaban_2);
+              gauge_kelembaban_2.set(kelembaban_2);
+
+              var tanggal = new Date(response.content.sensor[0].datetime);
+              $("#datetime").html(tanggal.toString());
+            }
+          },
+          error: function(response) {
+            alert(error);
+          },
+          cache: false,
+          contentType: false,
+          processData: false
+        });
+      }
+
+      setInterval(function() {
+        loadData();
+      }, 5000);
+    </script>
+  </body>
+</html>
