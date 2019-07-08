@@ -1,5 +1,8 @@
+var sound = new Audio("/assets/sound/ambulance.wav");
+
 function loadData() {
   // sensor 1
+  var alert_message = "";
   var opts_suhu_1 = {
     width: 1000,
     angle: 0,
@@ -159,18 +162,60 @@ function loadData() {
         var suhu_1 = response.content.sensor[0].suhu_1;
         $("#suhu_1").html(suhu_1);
         gauge_suhu_1.set(suhu_1);
+        if ((suhu_1 >= 0 && suhu_1 < 36) || (suhu_1 >= 40 && suhu_1 < 100)) {
+          alert_message +=
+            "Hasil baca suhu dari sensor 1 menunjukan " +
+            suhu_1 +
+            " <sup>o</sup><br>";
+        }
 
         var kelembaban_1 = response.content.sensor[0].kelembaban_1;
         $("#kelembaban_1").html(kelembaban_1);
         gauge_kelembaban_1.set(kelembaban_1);
+        if (
+          (kelembaban_1 >= 0 && kelembaban_1 < 36) ||
+          (kelembaban_1 >= 40 && kelembaban_1 < 100)
+        ) {
+          alert_message +=
+            "Hasil baca kelembaban dari sensor 1 menunjukan " +
+            kelembaban_1 +
+            " rh<br>";
+        }
 
         var suhu_2 = response.content.sensor[0].suhu_2;
         $("#suhu_2").html(suhu_2);
         gauge_suhu_2.set(suhu_2);
+        if ((suhu_2 >= 0 && suhu_2 < 36) || (suhu_2 >= 40 && suhu_2 < 100)) {
+          alert_message +=
+            "Hasil baca suhu dari sensor 2 menunjukan  " +
+            suhu_2 +
+            " <sup>o</sup><br>";
+        }
 
         var kelembaban_2 = response.content.sensor[0].kelembaban_2;
         $("#kelembaban_2").html(kelembaban_2);
         gauge_kelembaban_2.set(kelembaban_2);
+        if (
+          (kelembaban_2 >= 0 && kelembaban_2 < 36) ||
+          (kelembaban_2 >= 40 && kelembaban_2 < 100)
+        ) {
+          alert_message +=
+            "Hasil baca kelembaban dari sensor 2 menunjukan " +
+            kelembaban_2 +
+            " rh<br>";
+        }
+
+        if (alert_message != "") {
+          $("#notif_box").show();
+          $("#notif_box").html(
+            '<div class="alert alert-danger"> <strong>Peringatan!</strong><br>' +
+              alert_message +
+              "</div>"
+          );
+          sound.play();
+        } else {
+          $("#notif_box").hide();
+        }
 
         var tanggal = new Date(response.content.sensor[0].datetime);
         $("#datetime").html(tanggal.toString());

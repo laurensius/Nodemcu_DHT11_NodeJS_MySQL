@@ -1,4 +1,7 @@
+var sound = new Audio("/assets/sound/ambulance.wav");
+
 function loadData() {
+  var alert_message = "";
   $.ajax({
     url: "/api/grafik",
     type: "GET",
@@ -22,6 +25,66 @@ function loadData() {
           data_kelembaban_1[y] = response.content.sensor[x].kelembaban_1;
           data_kelembaban_2[y] = response.content.sensor[x].kelembaban_2;
           y++;
+        }
+
+        if (
+          (data_suhu_1[response.content.sensor.length - 1] >= 0 &&
+            data_suhu_1[response.content.sensor.length - 1] < 36) ||
+          (data_suhu_1[response.content.sensor.length - 1] >= 40 &&
+            data_suhu_1[response.content.sensor.length - 1] < 100)
+        ) {
+          alert_message +=
+            "Hasil baca suhu dari sensor 1 menunjukan " +
+            data_suhu_1[response.content.sensor.length - 1] +
+            " <sup>o</sup><br>";
+        }
+
+        if (
+          (data_kelembaban_1[response.content.sensor.length - 1] >= 0 &&
+            data_kelembaban_1[response.content.sensor.length - 1] < 36) ||
+          (data_kelembaban_1[response.content.sensor.length - 1] >= 40 &&
+            data_kelembaban_1[response.content.sensor.length - 1] < 100)
+        ) {
+          alert_message +=
+            "Hasil baca kelembaban dari sensor 1 menunjukan " +
+            data_kelembaban_1[response.content.sensor.length - 1] +
+            " rh<br>";
+        }
+
+        if (
+          (data_suhu_2[response.content.sensor.length - 1] >= 0 &&
+            data_suhu_2[response.content.sensor.length - 1] < 36) ||
+          (data_suhu_2[response.content.sensor.length - 1] >= 40 &&
+            data_suhu_2[response.content.sensor.length - 1] < 100)
+        ) {
+          alert_message +=
+            "Hasil baca suhu dari sensor 2 menunjukan " +
+            data_suhu_2[response.content.sensor.length - 1] +
+            " <sup>o</sup><br>";
+        }
+
+        if (
+          (data_kelembaban_2[response.content.sensor.length - 1] >= 0 &&
+            data_kelembaban_2[response.content.sensor.length - 1] < 36) ||
+          (data_kelembaban_2[response.content.sensor.length - 1] >= 40 &&
+            data_kelembaban_2[response.content.sensor.length - 1] < 100)
+        ) {
+          alert_message +=
+            "Hasil baca kelembaban dari sensor 1 menunjukan " +
+            data_kelembaban_2[response.content.sensor.length - 1] +
+            " rh<br>";
+        }
+
+        if (alert_message != "") {
+          $("#notif_box").show();
+          $("#notif_box").html(
+            '<div class="alert alert-danger"> <strong>Peringatan!</strong><br>' +
+              alert_message +
+              "</div>"
+          );
+          sound.play();
+        } else {
+          $("#notif_box").hide();
         }
 
         var ctx_suhu = document.getElementById("myChartSuhu");
